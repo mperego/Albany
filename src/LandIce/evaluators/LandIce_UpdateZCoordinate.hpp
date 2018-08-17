@@ -4,22 +4,19 @@
 //    in the file "license.txt" in the top-level Albany directory  //
 //*****************************************************************//
 
-#ifndef LANDICE_UPDATEZCOORDINATE_HPP
-#define LANDICE_UPDATEZCOORDINATE_HPP
+#ifndef LANDICE_UPDATE_Z_COORDINATE_HPP
+#define LANDICE_UPDATE_Z_COORDINATE_HPP
 
 #include "Phalanx_config.hpp"
 #include "Phalanx_Evaluator_WithBaseImpl.hpp"
 #include "Phalanx_Evaluator_Derived.hpp"
 #include "Phalanx_MDField.hpp"
 #include "Sacado_ParameterAccessor.hpp" 
+
+#include "PHAL_Dimension.hpp"
 #include "Albany_Layouts.hpp"
 
 namespace LandIce {
-/** \brief Finite Element Interpolation Evaluator
-
-    This evaluator interpolates nodal DOF values to quad points.
-
-*/
 
 template<typename EvalT, typename Traits>
 class UpdateZCoordinateMovingTop : public PHX::EvaluatorWithBaseImpl<Traits>,
@@ -90,4 +87,4 @@ private:
 };
 }
 
-#endif
+#endif // LANDICE_UPDATE_Z_COORDINATE_HPP

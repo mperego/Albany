@@ -4,16 +4,16 @@
 //    in the file "license.txt" in the top-level Albany directory  //
 //*****************************************************************//
 
-#ifndef PHAL_LOADSTATEFIELD_HPP
-#define PHAL_LOADSTATEFIELD_HPP
+#ifndef PHAL_LOAD_STATE_FIELD_HPP
+#define PHAL_LOAD_STATE_FIELD_HPP
 
 #include "Phalanx_config.hpp"
 #include "Phalanx_Evaluator_WithBaseImpl.hpp"
 #include "Phalanx_Evaluator_Derived.hpp"
 #include "Phalanx_MDField.hpp"
-
 #include "Teuchos_ParameterList.hpp"
 
+#include "Albany_Layouts.hpp"
 #include "PHAL_Utilities.hpp"
 
 namespace PHAL {
@@ -83,6 +83,6 @@ using LoadStateFieldRT = LoadStateFieldBase<EvalT,Traits,RealType>;
 //template<typename EvalT, typename Traits>
 //using LoadStateField = LoadStateFieldBase<EvalT,Traits,typename EvalT::ScalarT>;
 
-}
+} // namespace PHAL
 
-#endif
+#endif // PHAL_LOAD_STATE_FIELD_HPP

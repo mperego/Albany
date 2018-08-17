@@ -110,8 +110,7 @@ protected:
   void constructVelocityEvaluators (PHX::FieldManager<PHAL::AlbanyTraits>& fm0,
                                     const Albany::MeshSpecsStruct& meshSpecs,
                                     Albany::StateManager& stateMgr,
-                                    Albany::FieldManagerChoice fieldManagerChoice,
-                                    std::map<std::string,bool>& is_dist_param);
+                                    Albany::FieldManagerChoice fieldManagerChoice);
 
   template <typename EvalT>
   void constructBasalBCEvaluators (PHX::FieldManager<PHAL::AlbanyTraits>& fm0,
@@ -204,7 +203,7 @@ constructStokesFOBaseEvaluators (PHX::FieldManager<PHAL::AlbanyTraits>& fm0,
   constructStatesEvaluators<EvalT> (fm0, meshSpecs, stateMgr, extruded_params_levels, is_dist_param, has_input, has_ss_input);
 
   // --- Velocity evaluators --- //
-  constructVelocityEvaluators<EvalT> (fm0, meshSpecs, stateMgr, fieldManagerChoice, is_dist_param);
+  constructVelocityEvaluators<EvalT> (fm0, meshSpecs, stateMgr, fieldManagerChoice);
 
   // --- Lateral BC evaluators (if needed) --- //
   constructLateralBCEvaluators<EvalT> (fm0);
@@ -503,8 +502,7 @@ void StokesFOBase::
 constructVelocityEvaluators (PHX::FieldManager<PHAL::AlbanyTraits>& fm0,
                              const Albany::MeshSpecsStruct& meshSpecs,
                              Albany::StateManager& stateMgr,
-                             Albany::FieldManagerChoice fieldManagerChoice,
-                             std::map<std::string,bool>& is_dist_param)
+                             Albany::FieldManagerChoice fieldManagerChoice)
 {
   Albany::EvaluatorUtils<EvalT, PHAL::AlbanyTraits> evalUtils(dl);
   Teuchos::RCP<PHX::Evaluator<PHAL::AlbanyTraits> > ev;

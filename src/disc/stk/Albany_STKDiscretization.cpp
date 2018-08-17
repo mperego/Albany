@@ -32,9 +32,6 @@
 #include <stk_mesh/base/GetBuckets.hpp>
 #include <stk_mesh/base/GetEntities.hpp>
 #include <stk_mesh/base/Selector.hpp>
-
-#include <PHAL_Dimension.hpp>
-
 #include <stk_mesh/base/FEMHelpers.hpp>
 
 #include <MatrixMarket_Tpetra.hpp>
@@ -48,7 +45,7 @@ extern "C" {
 #include <netcdf_par.h>
 }
 #endif
-#endif
+#endif // ALBANY_SEACAS
 
 #include <algorithm>
 #if defined(ALBANY_EPETRA)
@@ -63,7 +60,11 @@ extern "C" {
 #endif
 #endif
 
-const double pi = 3.1415926535897932385;
+#include <PHAL_Dimension.hpp>
+#include <Albany_TpetraThyraUtils.hpp>
+#include <Albany_EpetraThyraUtils.hpp>
+
+constexpr double pi = 3.1415926535897932385;
 
 const Tpetra::global_size_t INVALID =
     Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
@@ -207,6 +208,29 @@ Albany::STKDiscretization::getJacobianGraphT() const
   return graphT;
 }
 
+Teuchos::RCP<Thyra_LinearOp>
+Albany::STKDiscretization::createJacobianOp () const
+{
+  BuildType bt = build_type();
+  Teuchos::RCP<Thyra_LinearOp> jac_op;
+  switch (bt) {
+    // Note: we need to specify the template argument for Teuchos::rcp, so it returns an RCP<[T|E]petra_Operator>,
+    //       which exactly is what createThyraLinearOp expects. Otherwise, the compiler has issues detecting T vs E implementation.
+    case BuildType::Epetra:
+      jac_op = createThyraLinearOp(Teuchos::rcp<Epetra_Operator>( new Epetra_CrsMatrix(::Copy, *getJacobianGraph()) ));
+      break;
+    case BuildType::Tpetra:
+      jac_op = createThyraLinearOp(Teuchos::rcp<Tpetra_Operator>( new Tpetra_CrsMatrix(getJacobianGraphT()) ));
+      break;
+    case BuildType::None:
+      TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Error! Albany build type is 'None'. Please, initialize build type first.\n");
+      break;
+    default:
+      TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Error! Unknown Albany build type.\n");
+  }
+  return jac_op;
+}
+
 #ifdef ALBANY_AERAS
 Teuchos::RCP<const Tpetra_CrsGraph>
 Albany::STKDiscretization::getImplicitJacobianGraphT() const
@@ -229,6 +253,29 @@ Teuchos::RCP<const Tpetra_CrsGraph>
 Albany::STKDiscretization::getOverlapJacobianGraphT() const
 {
   return overlap_graphT;
+}
+
+Teuchos::RCP<Thyra_LinearOp>
+Albany::STKDiscretization::createOverlapJacobianOp () const
+{
+  BuildType bt = build_type();
+  Teuchos::RCP<Thyra_LinearOp> ov_jac_op;
+  switch (bt) {
+    // Note: we need to specify the template argument for Teuchos::rcp, so it returns an RCP<[T|E]petra_Operator>,
+    //       which exactly is what createThyraLinearOp expects. Otherwise, the compiler has issues detecting T vs E implementation.
+    case BuildType::Epetra:
+      ov_jac_op = createThyraLinearOp(Teuchos::rcp<Epetra_Operator>( new Epetra_CrsMatrix(::Copy, *getOverlapJacobianGraph()) ));
+      break;
+    case BuildType::Tpetra:
+      ov_jac_op = createThyraLinearOp(Teuchos::rcp<Tpetra_Operator>( new Tpetra_CrsMatrix(getOverlapJacobianGraphT()) ));
+      break;
+    case BuildType::None:
+      TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Error! Albany build type is 'None'. Please, initialize build type first.\n");
+      break;
+    default:
+      TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Error! Unknown Albany build type.\n");
+  }
+  return ov_jac_op;
 }
 
 #ifdef ALBANY_AERAS

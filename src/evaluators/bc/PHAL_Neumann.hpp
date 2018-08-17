@@ -14,21 +14,20 @@
 
 #include "Intrepid2_CellTools.hpp"
 #include "Intrepid2_Cubature.hpp"
-
-#include "Albany_ProblemUtils.hpp"
 #include "Sacado_ParameterAccessor.hpp"
+
+#include "Albany_ScalarOrdinalTypes.hpp"
+#include "Albany_MeshSpecs.hpp"
+#include "Albany_Layouts.hpp"
 #include "PHAL_AlbanyTraits.hpp"
 #include "PHAL_Utilities.hpp"
-
 #include "Albany_MaterialDatabase.hpp"
-
 
 namespace PHAL {
 
 /** \brief Neumann boundary condition evaluator
 
 */
-
 
 template<typename EvalT, typename Traits>
 class NeumannBase :
