@@ -1066,17 +1066,29 @@ void StokesFOBase::constructBasalBCEvaluators (PHX::FieldManager<PHAL::AlbanyTra
     ptr_lambda->setNominalValue(params->sublist("Parameters"),pl->sublist("Basal Friction Coefficient").get<double>(param_name,-1.0));
     fm0.template registerEvaluator<EvalT>(ptr_lambda);
 
-    //--- Shared Parameter for basal friction coefficient: mu ---//
-    p = Teuchos::rcp(new Teuchos::ParameterList("Basal Friction Coefficient: mu"));
+    //--- Shared Parameter for basal friction coefficient: muCoulomb ---//
+    p = Teuchos::rcp(new Teuchos::ParameterList("Basal Friction Coefficient: muCoulomb"));
 
     param_name = "Coulomb Friction Coefficient";
     p->set<std::string>("Parameter Name", param_name);
     p->set< Teuchos::RCP<ParamLib> >("Parameter Library", paramLib);
 
-    Teuchos::RCP<LandIce::SharedParameter<EvalT,PHAL::AlbanyTraits,ParamEnum,ParamEnum::Mu>> ptr_mu;
-    ptr_mu = Teuchos::rcp(new LandIce::SharedParameter<EvalT,PHAL::AlbanyTraits,ParamEnum,ParamEnum::Mu>(*p,dl));
-    ptr_mu->setNominalValue(params->sublist("Parameters"),pl->sublist("Basal Friction Coefficient").get<double>(param_name,-1.0));
-    fm0.template registerEvaluator<EvalT>(ptr_mu);
+    Teuchos::RCP<LandIce::SharedParameter<EvalT,PHAL::AlbanyTraits,ParamEnum,ParamEnum::MuCoulomb>> ptr_muC;
+    ptr_muC = Teuchos::rcp(new LandIce::SharedParameter<EvalT,PHAL::AlbanyTraits,ParamEnum,ParamEnum::MuCoulomb>(*p,dl));
+    ptr_muC->setNominalValue(params->sublist("Parameters"),pl->sublist("Basal Friction Coefficient").get<double>(param_name,-1.0));
+    fm0.template registerEvaluator<EvalT>(ptr_muC);
+
+    //--- Shared Parameter for basal friction coefficient: muPowerLaw ---//
+    p = Teuchos::rcp(new Teuchos::ParameterList("Basal Friction Coefficient: muPowerLaw"));
+
+    param_name = "Power Law Coefficient";
+    p->set<std::string>("Parameter Name", param_name);
+    p->set< Teuchos::RCP<ParamLib> >("Parameter Library", paramLib);
+
+    Teuchos::RCP<LandIce::SharedParameter<EvalT,PHAL::AlbanyTraits,ParamEnum,ParamEnum::MuPowerLaw>> ptr_muP;
+    ptr_muP = Teuchos::rcp(new LandIce::SharedParameter<EvalT,PHAL::AlbanyTraits,ParamEnum,ParamEnum::MuPowerLaw>(*p,dl));
+    ptr_muP->setNominalValue(params->sublist("Parameters"),pl->sublist("Basal Friction Coefficient").get<double>(param_name,-1.0));
+    fm0.template registerEvaluator<EvalT>(ptr_muP);
 
     //--- Shared Parameter for basal friction coefficient: power ---//
     p = Teuchos::rcp(new Teuchos::ParameterList("Basal Friction Coefficient: power"));
@@ -1408,10 +1420,6 @@ void StokesFOBase::constructSMBEvaluators (PHX::FieldManager<PHAL::AlbanyTraits>
     ev = evalUtils.getPSTUtils().constructDOFInterpolationSideEvaluator("observed_ice_thickness_RMS_" + basalSideName, basalSideName, enableMemoizer);
     fm0.template registerEvaluator<EvalT>(ev);
 
-    // Interpolate the 3D state on the side (the BasalFrictionCoefficient evaluator needs a side field)
-    ev = evalUtils.constructDOFCellToSideEvaluator("Averaged Velocity",basalSideName,"Node Vector",cellType);
-    fm0.template registerEvaluator<EvalT> (ev);
-
     //---- Interpolate velocity on QP on side
     ev = evalUtils.constructDOFVecInterpolationSideEvaluator("Averaged Velocity", basalSideName);
     fm0.template registerEvaluator<EvalT>(ev);
@@ -1442,6 +1450,7 @@ void StokesFOBase::constructSMBEvaluators (PHX::FieldManager<PHAL::AlbanyTraits>
 
     p->set<std::string>("Averaged Velocity Name", "Averaged Velocity");
     p->set<std::string>("Mesh Part", "basalside");
+    p->set<std::string>("Side Set Name", basalSideName);
     p->set<Teuchos::RCP<const CellTopologyData> >("Cell Topology",Teuchos::rcp(new CellTopologyData(meshSpecs.ctd)));
 
     ev = Teuchos::rcp(new GatherVerticallyAveragedVelocity<EvalT,PHAL::AlbanyTraits>(*p,dl));
@@ -1514,12 +1523,17 @@ StokesFOBase::constructStokesFOBaseResponsesEvaluators (PHX::FieldManager<PHAL::
 
     // ----------------------- Responses --------------------- //
     paramList->set<Teuchos::RCP<ParamLib> >("Parameter Library", paramLib);
+    paramList->set<Teuchos::ParameterList>("LandIce Physical Parameters List", params->sublist("LandIce Physical Parameters"));
+    paramList->set<std::string>("Coordinate Vector Side Variable Name", Albany::coord_vec_name + " " + basalSideName);
     paramList->set<std::string>("Basal Friction Coefficient Name","beta");
     paramList->set<std::string>("Stiffening Factor Gradient Name","stiffening_factor_" + basalSideName + " Gradient");
     paramList->set<std::string>("Stiffening Factor Name", "stiffening_factor_" + basalSideName);
     paramList->set<std::string>("Thickness Gradient Name", "ice_thickness_" + basalSideName + " Gradient");
     paramList->set<std::string>("Thickness Side QP Variable Name","ice_thickness_" + basalSideName);
+    paramList->set<std::string>("Thickness Side Variable Name","ice_thickness_" + basalSideName);
+    paramList->set<std::string>("Bed Topography Side Variable Name","bed_topography_" + basalSideName);
     paramList->set<std::string>("Surface Velocity Side QP Variable Name","surface_velocity");
+    paramList->set<std::string>("Averaged Vertical Velocity Side Variable Name","Averaged Velocity");
     paramList->set<std::string>("SMB Side QP Variable Name","surface_mass_balance_" + basalSideName);
     paramList->set<std::string>("SMB RMS Side QP Variable Name","surface_mass_balance_RMS_" + basalSideName);
     paramList->set<std::string>("Flux Divergence Side QP Variable Name","flux_divergence");

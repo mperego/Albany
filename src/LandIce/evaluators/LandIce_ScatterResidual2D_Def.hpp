@@ -37,13 +37,8 @@ ScatterResidual2D(const Teuchos::ParameterList& p,
     numFields(ScatterResidual<PHAL::AlbanyTraits::Jacobian,Traits>::numFieldsBase)
 {
   cell_topo = p.get<Teuchos::RCP<const CellTopologyData> >("Cell Topology");
-  if (p.isType<int>("Field Level"))
-    fieldLevel = p.get<int>("Field Level");
-  else fieldLevel = -1;
-  if (p.isType<const std::string>("Mesh Part"))
-    meshPart = p.get<const std::string>("Mesh Part");
-  else
-    meshPart = "upperside";
+  fieldLevel = p.get<int>("Field Level");
+  meshPart = p.get<std::string>("Mesh Part");
 }
 
 // **********************************************************************
@@ -64,7 +59,6 @@ evaluateFields(typename Traits::EvalData workset)
   const Albany::NodalDOFManager& solDOFManager = workset.disc->getOverlapDOFManager("ordinary_solution");
   const Albany::LayeredMeshNumbering<LO>& layeredMeshNumbering = *workset.disc->getLayeredMeshNumbering();
   int numLayers = layeredMeshNumbering.numLayers;
-  fieldLevel = (fieldLevel < 0) ? numLayers : fieldLevel;
   colT.reserve(neq*this->numNodes*(numLayers+1));
 
   const Teuchos::ArrayRCP<Teuchos::ArrayRCP<GO> >& wsElNodeID  = workset.disc->getWsElNodeID()[workset.wsIndex];
@@ -176,9 +170,7 @@ ScatterResidualWithExtrudedField(const Teuchos::ParameterList& p,
   if (p.isType<int>("Offset 2D Field"))
     offset2DField = p.get<int>("Offset 2D Field");
   else offset2DField = numFields-1;
-  if (p.isType<int>("Field Level"))
-    fieldLevel = p.get<int>("Field Level");
-  else fieldLevel = -1;
+  fieldLevel = p.get<int>("Field Level");
 }
 
 // **********************************************************************
@@ -244,7 +236,6 @@ evaluateFields(typename Traits::EvalData workset)
   const Albany::NodalDOFManager& solDOFManager = workset.disc->getOverlapDOFManager("ordinary_solution");
   const Albany::LayeredMeshNumbering<LO>& layeredMeshNumbering = *workset.disc->getLayeredMeshNumbering();
   int numLayers = layeredMeshNumbering.numLayers;
-  fieldLevel = (fieldLevel < 0) ? numLayers : fieldLevel;
   colT.resize(this->numNodes);
 
   const Teuchos::ArrayRCP<Teuchos::ArrayRCP<GO> >& wsElNodeID  = workset.disc->getWsElNodeID()[workset.wsIndex];
