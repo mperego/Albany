@@ -957,11 +957,11 @@ evalModelImpl(
 
   //Get parameters
   for (auto l = 0; l < num_params_total_; ++l) {
-    //get p from in_args for each parameter
-    Teuchos::RCP<const Thyra_ProductVector> pT =
-        Teuchos::rcp_dynamic_cast<const Thyra_ProductVector>(in_args.get_p(l), true);
+    //get p from in_args for each parameter. Throw if cast fails.
+    auto p = Albany::getConstProductVector(in_args.get_p(l),true);
+
     // Don't set it if there is nothing. Avoid null pointer.
-    if (pT.is_null()) { continue; }
+    if (p.is_null()) { continue; }
 
     for (auto m = 0; m < num_models_; ++m) {
       ParamVec &
@@ -973,11 +973,11 @@ evalModelImpl(
       // The code does not work if 0 is replaced by m:
       // only the first vector in the Thyra Product MultiVec is correct.
       // Why...?
-      Teuchos::RCP<Tpetra_Vector const> pTm = Albany::getConstTpetraVector(pT->getVectorBlock(0));
+      
 
-      Teuchos::ArrayRCP<ST const> pTm_constView = pTm->get1dView();
+      Teuchos::ArrayRCP<ST const> pm_constView = Albany::getLocalData(p->getVectorBlock(0));
       for (auto k = 0; k < sacado_param_vector.size(); ++k) {
-        sacado_param_vector[k].baseValue = pTm_constView[k];
+        sacado_param_vector[k].baseValue = pm_constView[k];
       }
     }
   }
