@@ -20,6 +20,7 @@
 #ifdef ALBANY_LANDICE
 #include "LandIce_ResponseSurfaceVelocityMismatch.hpp"
 #include "LandIce_ResponseSMBMismatch.hpp"
+#include "LandIce_ResponseGLFlux.hpp"
 #include "LandIce_ResponseBoundarySquaredL2Norm.hpp"
 #endif
 #if defined(ALBANY_LCM)
@@ -159,6 +160,10 @@ Albany::ResponseUtilities<EvalT,Traits>::constructResponses(
   else if (responseName == "Surface Mass Balance Mismatch")
   {
     res_ev = rcp(new LandIce::ResponseSMBMismatch<EvalT,Traits>(*p,dl));
+  }
+  else if (responseName == "Grounding Line Flux")
+  {
+    res_ev = rcp(new LandIce::ResponseGLFlux<EvalT,Traits>(*p,dl));
   }
   else if (responseName == "Boundary Squared L2 Norm")
   {
