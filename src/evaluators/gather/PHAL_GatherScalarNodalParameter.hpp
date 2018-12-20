@@ -76,6 +76,11 @@ class GatherScalarExtruded2DNodalParameter :
     public GatherScalarNodalParameterBase<EvalT, Traits>  {
 
 public:
+  GatherScalarExtruded2DNodalParameter(const Teuchos::ParameterList& p) :
+    GatherScalarNodalParameterBase<EvalT, Traits>(p,p.get<Teuchos::RCP<Albany::Layouts> >("State Field Layout")) {
+    fieldLevel = p.get<int>("Field Level");
+  }
+
   GatherScalarExtruded2DNodalParameter(const Teuchos::ParameterList& p, const Teuchos::RCP<Albany::Layouts>& dl) :
     GatherScalarNodalParameterBase<EvalT, Traits>(p, dl) {
     fieldLevel = p.get<int>("Field Level");
@@ -120,6 +125,12 @@ class GatherScalarExtruded2DNodalParameter<PHAL::AlbanyTraits::DistParamDeriv,Tr
                                           Traits>  {
 
 public:
+  // Old constructor, still needed by BCs that use PHX Factory
+  GatherScalarExtruded2DNodalParameter(const Teuchos::ParameterList& p) :
+    GatherScalarNodalParameterBase<PHAL::AlbanyTraits::DistParamDeriv, Traits>(p,p.get<Teuchos::RCP<Albany::Layouts> >("State Field Layout")) {
+    fieldLevel = p.get<int>("Field Level");
+  }
+
   GatherScalarExtruded2DNodalParameter(const Teuchos::ParameterList& p, const Teuchos::RCP<Albany::Layouts>& dl) :
     GatherScalarNodalParameterBase<PHAL::AlbanyTraits::DistParamDeriv, Traits>(p, dl) {
     fieldLevel = p.get<int>("Field Level");

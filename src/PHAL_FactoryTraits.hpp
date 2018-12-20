@@ -138,7 +138,7 @@ namespace PHAL {
        PHAL::GatherCoordinateVector<_,Traits>,    //  2
        PHAL::GatherSolution<_,Traits>,            //  3
        PHAL::LoadStateField<_,Traits>,            //  4
-       PHAL::GatherScalarNodalParameter<_,Traits>,//  5
+       PHAL::GatherScalarExtruded2DNodalParameter<_,Traits>,//  5
 #ifdef ALBANY_QCAD
        QCAD::PoissonNeumann<_,Traits>,            //  6
        QCAD::PoissonSourceNeumann<_,Traits>,      //  7
